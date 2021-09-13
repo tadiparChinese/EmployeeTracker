@@ -1,6 +1,6 @@
 # Employee Tracking System
 
-    ## Following functionalities need to be implemented
+    # Following functionalities need to be implemented
 
      1. Fixed start time - 9 AM
      2. Fixed end time - 6 PM
@@ -20,7 +20,7 @@
      10. User id
 
 
-    ## API: [method] [api uri]
+    # API: [method] [api uri]
     ```
     [post] http://127.0.0.1:8000/api/register/
 
@@ -67,7 +67,7 @@
     ```
 
 
-    ## API desc: what does this api do
-    ## API request payload/query params :
-    ## API Response payload: 
-    ## API Headers:
+    # API desc: what does this api do
+    # API request payload/query params :
+    # API Response payload: 
+    # API Headers:
