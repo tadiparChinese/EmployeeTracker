@@ -1,6 +1,6 @@
 # Employee Tracking System
 
-    # Following functionalities need to be implemented
+  ## Following functionalities need to be implemented
 
      1. Fixed start time - 9 AM
      2. Fixed end time - 6 PM
@@ -20,9 +20,9 @@
      10. User id
 
 
-    # API: [method] [api uri]
+   ## API: [method] [api uri]
     ```
-    [post] http://127.0.0.1:8000/api/register/
+   [post] http://127.0.0.1:8000/api/register/
 
     {
     "username":"john",
@@ -32,7 +32,7 @@
     ```
 
     ```
-    http://127.0.0.1:8000/api/login/
+   http://127.0.0.1:8000/api/login/
 
     {
     "username": "admin",
@@ -48,7 +48,7 @@
     ```
 
     ```
-    http://127.0.0.1:8000/api/logout/
+   http://127.0.0.1:8000/api/logout/
 
     it will logout the user
     ```
@@ -56,14 +56,14 @@
 
 
     ```
-    http://127.0.0.1:8000/api/logoutall/
+   http://127.0.0.1:8000/api/logoutall/
 
     logout all users
     ```
 
     gives user details
     ```
-    http://127.0.0.1:8000/api/info/ 
+   http://127.0.0.1:8000/api/info/ 
     ```
 
 
