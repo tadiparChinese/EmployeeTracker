@@ -1,6 +1,10 @@
 # Employee Tracking System
 
+<<<<<<< HEAD
     ## Following functionalities need to be implemented
+=======
+  ## Following functionalities need to be implemented
+>>>>>>> c1118cf07e647f3db2866320dacaaa6bf479e442
 
      1. Fixed start time - 9 AM
      2. Fixed end time - 6 PM
@@ -20,9 +24,15 @@
      10. User id
 
 
+<<<<<<< HEAD
     ## API: [method] [api uri]
     ```
     [post] http://127.0.0.1:8000/api/register/
+=======
+   ## API: [method] [api uri]
+    ```
+   [post] http://127.0.0.1:8000/api/register/
+>>>>>>> c1118cf07e647f3db2866320dacaaa6bf479e442
 
     {
     "username":"john",
@@ -32,7 +42,11 @@
     ```
 
     ```
+<<<<<<< HEAD
     http://127.0.0.1:8000/api/login/
+=======
+   http://127.0.0.1:8000/api/login/
+>>>>>>> c1118cf07e647f3db2866320dacaaa6bf479e442
 
     {
     "username": "admin",
@@ -48,7 +62,11 @@
     ```
 
     ```
+<<<<<<< HEAD
     http://127.0.0.1:8000/api/logout/
+=======
+   http://127.0.0.1:8000/api/logout/
+>>>>>>> c1118cf07e647f3db2866320dacaaa6bf479e442
 
     it will logout the user
     ```
@@ -56,13 +74,18 @@
 
 
     ```
+<<<<<<< HEAD
     http://127.0.0.1:8000/api/logoutall/
+=======
+   http://127.0.0.1:8000/api/logoutall/
+>>>>>>> c1118cf07e647f3db2866320dacaaa6bf479e442
 
     logout all users
     ```
 
     gives user details
     ```
+<<<<<<< HEAD
     http://127.0.0.1:8000/api/info/ 
     ```
 
@@ -71,3 +94,13 @@
     ## API request payload/query params :
     ## API Response payload: 
     ## API Headers:
+=======
+   http://127.0.0.1:8000/api/info/ 
+    ```
+
+
+    # API desc: what does this api do
+    # API request payload/query params :
+    # API Response payload: 
+    # API Headers:
+>>>>>>> c1118cf07e647f3db2866320dacaaa6bf479e442
