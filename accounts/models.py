@@ -42,7 +42,7 @@ class EmployeeAccount(AbstractBaseUser, PermissionsMixin):
         return self.id
 
     class Meta:
-        db_table = 'employee_account'
+        # db_table = 'employee_account'
         managed = True
 
 
