@@ -4,7 +4,7 @@ from django.utils import dateparse
 
 from django.contrib import messages
 
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import redirect
 
 from rest_framework import generics, permissions
 from rest_framework.response import Response
@@ -13,6 +13,7 @@ from .serializers import UserSerializer, RegisterSerializer
 
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.template import RequestContext
 
 
 from django.contrib.auth import login
@@ -25,6 +26,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.views import LoginView as KnoxLoginView
+from rest_framework.views import APIView
 
 # from django.core.cache import cache
 
@@ -34,6 +36,19 @@ from rest_framework.views import APIView
 from accounts.models import EmployeeAccount, EmployeeInfo
 from accounts.serializers import EmployeeInfoSerializer
 from accounts.utils import CustomMessage
+
+#User API
+class UserAPIView(generics.RetrieveAPIView):
+    permission_classes = [
+        permissions.IsAuthenticated,
+    ]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+
 
 # Register API
 class RegisterAPI(generics.GenericAPIView):
@@ -62,80 +77,47 @@ class LoginAPI(KnoxLoginView):
         return super(LoginAPI, self).post(request, format=None)
 
 
-#use of cache to store the login count
-# def dashboard(self, request):
-#     if request.user.is_authenticated():
-#         ct = cache.get('count', version=user.pk)
-#         return render(request, 'dashboard.html', {'ct':ct})
-#     else:
-#         return HttpResponseRedirect('/login/'))
+#Logout view is handled by knox
+
 
 
 class EmployeeInfoAPI(APIView):
     permission_classes = (IsAuthenticated, )
 
     def get(self, request):
-        try:
-            try:
-                EmployeeAccount.objects.get(Q(id=request.user.id))
-            except EmployeeInfo.DoesNotExist:
-                raise CustomMessage("Employee ID is invalid")
-            employee_data_obj = EmployeeInfo.objects.filter(Q(employee=request.user) &
-                                                          Q(created_date=datetime.datetime.today()))
-            serializer_data = EmployeeInfoSerializer(employee_data_obj, many=True).data
-            login_count = 0
-            logout_count = 0
-            for i in serializer_data:
-                if i["login_datetime"]:
-                    login_count += 1
-                if i["logout_datetime"]:
-                    logout_count += 1
+        login_count = 0
+        logout_count = 0
+        employee_data_obj = EmployeeInfo.objects.filter(Q(employee=request.user) &
+                                                        Q(created_date=datetime.datetime.today()))
+        working_time = (employee_data_obj.end_datetime - employee_data_obj.start_datetime)
+        serializer_data = EmployeeInfoSerializer(employee_data_obj, many=True).data
+        # messages.set_level(request, messages.INFO)
 
-            # messages.set_level(request, messages.INFO)
+        current_date = datetime.date.today()
+        in_start = datetime.datetime.combine(current_date, dateparse.parse_time(request.data['login_time']))
+        in_end = datetime.datetime.combine(current_date, dateparse.parse_time(request.data['logout_time']))
+        t = in_end - in_start
+        in_hours = math.floor(t.seconds/3600)
+        tot_minutes = (t.seconds % 3600)/60
+        quarters = math.floor(tot_minutes/15)
+        in_minutes = quarters * 15
+        # defines max number of hours that can be worked for a single day and login condition
+        if in_hours > working_time:
+            attendance_status = "Present"
+        else:
+            attendance_status = "Absent"
+        
+        # Creates new entry for time record
+        selected_user = EmployeeInfo.objects.get(Username=request.user)
+        selected_user.workhour_set.create(Employee=selected_user.pk, hours=in_hours, minutes=in_minutes)
+        selected_user.save()
+        
+        return Response({"data": {"is_success": True, 'message': serializer_data, "login_count": login_count,
+                                    "logout_count": logout_count, "hours": in_hours, "minutes": in_minutes, 'attendance_status':attendance_status}},
+                        status=status.HTTP_200_OK)
 
-            # check Logout request
-            if request.POST['action'] == 'logout':
-                return redirect('login:login')
 
-            # Login new record times 
-            elif request.POST['action'] == 'login':
-                try:
-                    # Process time
-                    # if the user selected login and logout times
-                    if request.POST['login'] and request.POST['logout']:
-                        # convert login and logout times to time difference in hours and minutes
-                        current_date = datetime.date.today()
-                        in_start = datetime.datetime.combine(current_date, dateparse.parse_time(request.POST['login']))
-                        in_end = datetime.datetime.combine(current_date, dateparse.parse_time(request.POST['logout']))
-                        t = in_end - in_start
-                        in_hours = math.floor(t.seconds/3600)
-                        tot_minutes = (t.seconds % 3600)/60
-                        quarters = math.floor(tot_minutes/15)
-                        in_minutes = quarters * 15
-                        # defines max number of hours that can be worked for a single day and login condition
-                        if int(in_hours) > 10:
-                            messages.warning(request, 'The max number of working hours are 10.')
-                            return Response({"data": {'message': 'Employee is absent'}},status=status.HTTP_200_OK)
-                    # if the user selected hours and minutes duration
-                    else:
-                        in_hours = request.POST['hours']
-                        in_minutes = request.POST['minutes']
-                except KeyError:
-                    return "Key does not exist" # Any of the inputs are not available for some reason
-
-                else:
-                    # Creates new entry for time record
-                    selected_user = EmployeeAccount.objects.get(Username=request.user)
-                    selected_user.workhour_set.create(Employee=selected_user.pk, hours=in_hours, minutes=in_minutes)
-                    selected_user.save()
-                    messages.success(request, 'Employee time successfully updated!')
-
-            return Response({"data": {"is_success": True, 'message': serializer_data, "login_count": login_count,
-                                      "logout_count": logout_count, "hours": in_hours, "minutes": in_minutes}},
-                            status=status.HTTP_200_OK)
-        except CustomMessage as e:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        except (ParseError, ZeroDivisionError, MultiValueDictKeyError, KeyError, ValueError, ValidationError):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({"message": "fail", "error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# def logged(request):
+#   logged_users = LoggedUser.objects.all().order_by('username')
+#   return Response({'logged_users': logged_users},
+#                             context_instance=RequestContext(request))

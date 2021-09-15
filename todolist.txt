@@ -16,3 +16,28 @@ Employee Tracking System
     9. Total duration user stayed logged in -> total login time (count)
 
     10. User id
+
+# Format
+
+{
+    "userid":1,
+    "fixed_start_time": "09:00",
+    "fixed_end_time": "17:00",
+    "number_of_times_logged_in": 4,
+    "list_of_login_times":{
+        "1": "09:00",
+        "2": "11:00",
+        "3": "14:00",
+        "4": "16:00"
+    },
+    "number_of_times_logged_out" : 4,
+    "list_of_logout_times":{
+        "1": "10:55",
+        "2": "13:55",
+        "3": "15:55",
+        "4": "18:00"
+    },
+    "working_window": "08:00",
+    "total_time_spend":"08:30",
+    "final_status":"Present",
+}

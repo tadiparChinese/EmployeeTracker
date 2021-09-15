@@ -24,14 +24,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 #Employee Status
 class EmployeeInfoSerializer(serializers.ModelSerializer):
-    total_duration = serializers.SerializerMethodField()
+    # total_duration = serializers.SerializerMethodField()
 
     class Meta:
         model = EmployeeInfo
-        fields = ('id', 'employee', 'login_datetime', 'logout_datetime', 'hours', 'minutes','created_date', "total_duration")
-
-    def get_total_duration(self, ob):
-        if ob.logout_datetime:
-            return ob.logout_datetime - ob.login_datetime
-        else:
-            return None
+        fields = ('id', 'employee', 'login_time', 'logout_time','login_count', 'logout_count','attendance_status','created_date')
