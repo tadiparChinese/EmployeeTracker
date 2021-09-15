@@ -91,8 +91,6 @@ class EmployeeInfoAPI(APIView):
                                                         Q(created_date=datetime.datetime.today()))
         working_time = (employee_data_obj.end_datetime - employee_data_obj.start_datetime)
         serializer_data = EmployeeInfoSerializer(employee_data_obj, many=True).data
-        # messages.set_level(request, messages.INFO)
-
         current_date = datetime.date.today()
         in_start = datetime.datetime.combine(current_date, dateparse.parse_time(request.data['login_time']))
         in_end = datetime.datetime.combine(current_date, dateparse.parse_time(request.data['logout_time']))
@@ -111,7 +109,7 @@ class EmployeeInfoAPI(APIView):
         selected_user = EmployeeInfo.objects.get(Username=request.user)
         selected_user.workhour_set.create(Employee=selected_user.pk, hours=in_hours, minutes=in_minutes)
         selected_user.save()
-        
+
         return Response({"data": {"is_success": True, 'message': serializer_data, "login_count": login_count,
                                     "logout_count": logout_count, "hours": in_hours, "minutes": in_minutes, 'attendance_status':attendance_status}},
                         status=status.HTTP_200_OK)
