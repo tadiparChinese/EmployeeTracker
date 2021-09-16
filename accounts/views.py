@@ -106,7 +106,7 @@ class EmployeeInfoAPI(APIView):
             attendance_status = "Absent"
         
         # Creates new entry for time record
-        selected_user = EmployeeInfo.objects.get(Username=request.user)
+        selected_user = EmployeeInfo.objects.get(Employee=request.user)
         selected_user.workhour_set.create(Employee=selected_user.pk, hours=in_hours, minutes=in_minutes)
         selected_user.save()
 
