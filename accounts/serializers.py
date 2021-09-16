@@ -17,6 +17,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
+
+        # user = User.objects.create_user(**validated_data)
         user = User.objects.create_user(validated_data['username'], validated_data['email'], validated_data['password'])
 
         return user
@@ -24,8 +26,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 #Employee Status
 class EmployeeInfoSerializer(serializers.ModelSerializer):
-    # total_duration = serializers.SerializerMethodField()
-
     class Meta:
         model = EmployeeInfo
         fields = ('id', 'employee', 'login_time', 'logout_time','login_count', 'logout_count','attendance_status','created_date')

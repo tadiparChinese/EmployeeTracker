@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'knox',
     'accounts',
+    'django_rest_passwordreset',
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,4 @@ REST_FRAMEWORK = {
 # }
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
