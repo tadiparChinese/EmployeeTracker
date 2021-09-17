@@ -17,11 +17,9 @@ from django.template import RequestContext
 
 
 from django.contrib.auth import login
-
-from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import status
 from rest_framework.exceptions import ParseError
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import permissions
 from rest_framework.authtoken.serializers import AuthTokenSerializer
@@ -88,39 +86,46 @@ class LoginAPI(KnoxLoginView):
 
 class EmployeeInfoAPI(APIView):
     permission_classes = (IsAuthenticated, )
+    # serializer_class = EmployeeInfoSerializer
 
     def get(self, request):
         login_count = 0
         logout_count = 0
         employee_data_obj = EmployeeInfo.objects.filter(Q(employee=request.user) &
                                                         Q(created_date=datetime.datetime.today()))
-        working_time = (employee_data_obj.end_datetime - employee_data_obj.start_datetime)
+                                                
+        # starting from 9AM to 5PM
+        fixed_login_time = datetime.now().strftime("%Y-%m-%d")  + " 09:00"
+        fixed_logout_time = datetime.now().strftime("%Y-%m-%d")  + " 17:00"
+        working_time = EmployeeInfo.objects.filter(date__range= (fixed_login_time, fixed_logout_time))
+        # working_time = (employee_data_obj.end_datetime - employee_data_obj.start_datetime)
+        login_time = working_time.first()
+        logout_time = working_time.last()
         serializer_data = EmployeeInfoSerializer(employee_data_obj, many=True).data
         current_date = datetime.date.today()
-        in_start = datetime.datetime.combine(current_date, dateparse.parse_time(request.data['login_time']))
-        in_end = datetime.datetime.combine(current_date, dateparse.parse_time(request.data['logout_time']))
-        t = in_end - in_start
-        in_hours = math.floor(t.seconds/3600)
-        tot_minutes = (t.seconds % 3600)/60
-        quarters = math.floor(tot_minutes/15)
-        in_minutes = quarters * 15
+        # for each employee_data_obj creation increase the counter
+        for emp in employee_data_obj:
+            if emp.login_time and emp.logout_time:
+                in_start = datetime.datetime.combine(current_date, dateparse.parse_time(request.data(login_time)))
+                in_end = datetime.datetime.combine(current_date, dateparse.parse_time(request.data(logout_time)))
+                t = in_end - in_start # actual working window
+                in_hours = math.floor(t.seconds/3600)
+                tot_minutes = (t.seconds % 3600)/60
+                quarters = math.floor(tot_minutes/15)
+                in_minutes = quarters * 15
+                login_count+=1
+                logout_count+=1
         # defines max number of hours that can be worked for a single day and login condition
-        if in_hours > working_time:
+        if in_hours >= working_time:
             attendance_status = "Present"
         else:
             attendance_status = "Absent"
         
-        # Creates new entry for time record
-        selected_user = EmployeeInfo.objects.get(Employee=request.user)
-        selected_user.workhour_set.create(Employee=selected_user.pk, hours=in_hours, minutes=in_minutes)
-        selected_user.save()
+        # Creates new entry for every time record
+        # employee_data_obj = EmployeeInfo.objects.get(Employee=request.user)
+        # employee_data_obj.workhour_set.create(Employee=employee_data_obj.pk, hours=in_hours, minutes=in_minutes)
+        serializer_data.save()
 
-        return Response({"data": {"is_success": True, 'message': serializer_data, "login_count": login_count,
-                                    "logout_count": logout_count, "hours": in_hours, "minutes": in_minutes, 'attendance_status':attendance_status}},
+        return Response({"data": {"is_success": True, 'message': serializer_data, "fixed_logout_time": fixed_logout_time, "fixed_login_time":fixed_login_time, "login_count": login_count,
+                                    "logout_count": logout_count, 'attendance_status':attendance_status}},
                         status=status.HTTP_200_OK)
-
-
-# def logged(request):
-#   logged_users = LoggedUser.objects.all().order_by('username')
-#   return Response({'logged_users': logged_users},
-#                             context_instance=RequestContext(request))

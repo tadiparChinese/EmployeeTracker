@@ -25,14 +25,14 @@ class UserManager(BaseUserManager):
 
 class EmployeeAccount(AbstractBaseUser, PermissionsMixin):
     id = models.IntegerField(primary_key=True)
-    user_name = models.CharField(max_length=100, unique=True)
+    username = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=50)
     email = models.EmailField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     signup_date = models.DateField(auto_now_add=True)
 
-    USERNAME_FIELD = 'user_name'
+    USERNAME_FIELD = 'username'
 
     objects = UserManager()
 
@@ -49,9 +49,11 @@ class EmployeeAccount(AbstractBaseUser, PermissionsMixin):
 
 class EmployeeInfo(models.Model):
     employee = models.ForeignKey(EmployeeAccount, on_delete=models.CASCADE)
+    fixed_login_time = models.DateTimeField(null=True, blank=True)
+    fixed_logout_time = models.DateTimeField(null=True, blank=True)
     login_time = models.DateTimeField(auto_now_add=True)
     logout_time = models.DateTimeField(null=True, blank=True)
-    workhour_set = models.DateField(auto_now_add=True)
+    # workhour_set = models.DateTimeField(null=True, blank=True)
     login_count = models.IntegerField(null=True, blank=True)
     logout_count = models.IntegerField(null=True, blank=True)
     attendance_status = models.CharField(max_length=10, unique=True)
